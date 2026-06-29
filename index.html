@@ -10,62 +10,60 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            padding: 0; 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 0;
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); 
-            min-height: 100vh; 
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
             margin: 0;
             color: #fff;
         }
-        h1 { 
-            text-align: center; 
-            margin: 20px 0 15px; 
-            font-size: 22px; 
+        h1 {
+            text-align: center;
+            margin: 20px 0 15px;
+            font-size: 22px;
             font-weight: 600;
         }
-        #reader { 
-            width: 100%; 
-            max-width: 500px; 
-            margin: 0 auto; 
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
         }
-        #reader video {
-            border-radius: 12px;
-        }
-        .status-box { 
-            background: rgba(255,255,255,0.1); 
+        #reader video { border-radius: 12px; }
+        .status-box {
+            background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            padding: 20px; 
-            margin: 15px; 
+            padding: 20px;
+            margin: 15px;
             border-radius: 16px;
         }
-        .status-text { 
-            text-align: center; 
-            color: #ccc; 
-            font-size: 15px; 
+        .status-text {
+            text-align: center;
+            color: #ccc;
+            font-size: 15px;
             margin-bottom: 15px;
         }
-        .progress-bar { 
-            width: 100%; 
-            background: rgba(255,255,255,0.1); 
-            border-radius: 12px; 
-            overflow: hidden; 
+        .progress-bar {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            overflow: hidden;
             height: 28px;
         }
-        .progress-fill { 
-            height: 100%; 
-            background: linear-gradient(90deg, #00ff88, #00cc6a); 
-            width: 0%; 
-            transition: width 0.3s ease; 
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00cc6a);
+            width: 0%;
+            transition: width 0.3s ease;
             border-radius: 12px;
         }
-        .progress-text { 
-            text-align: center; 
-            margin-top: 12px; 
-            color: #00ff88; 
+        .progress-text {
+            text-align: center;
+            margin-top: 12px;
+            color: #00ff88;
             font-weight: 600;
             font-size: 14px;
         }
@@ -76,42 +74,44 @@
             font-size: 13px;
             color: #888;
         }
-        #result-container { 
-            display: none; 
-            margin: 15px; 
+        #result-container {
+            display: none;
+            margin: 15px;
             background: rgba(255,255,255,0.95);
-            padding: 20px; 
+            padding: 20px;
             border-radius: 16px;
         }
-        #result-container h3 { 
-            color: #1a1a2e; 
-            margin: 0 0 15px 0; 
+        #result-container h3 {
+            color: #1a1a2e;
+            margin: 0 0 15px 0;
             font-size: 18px;
         }
-        textarea { 
-            width: 100%; 
-            height: 200px; 
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            font-size: 14px; 
-            resize: vertical; 
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
             font-family: monospace;
             background: #f5f5f5;
             color: #333;
         }
-        .btn { 
-            display: block; 
-            width: 100%; 
-            background: #007aff; 
-            color: white; 
-            border: none; 
-            padding: 14px; 
-            border-radius: 10px; 
-            font-size: 16px; 
-            font-weight: 600; 
-            margin-top: 12px; 
+        .btn {
+            display: block;
+            width: 100%;
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 12px;
             cursor: pointer;
+            text-align: center;
+            text-decoration: none;
         }
         .btn:active { opacity: 0.8; }
         .btn-secondary { background: #34c759; }
@@ -129,9 +129,9 @@
 </head>
 <body>
     <h1>光闸数据接收端</h1>
-    
+
     <div id="reader"></div>
-    
+
     <div class="status-box">
         <div class="status-text" id="status-text">正在初始化摄像头...</div>
         <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
@@ -142,11 +142,12 @@
         </div>
         <div class="error-box" id="error-box"></div>
     </div>
-    
+
     <div id="result-container">
         <h3>传输完成</h3>
         <textarea id="final-text" readonly></textarea>
-        <button class="btn btn-secondary" onclick="copyText()">复制文本</button>
+        <a class="btn" id="download-link" download style="display:none;">保存文件</a>
+        <button class="btn btn-secondary" id="copy-button" onclick="copyText()">复制文本</button>
         <button class="btn btn-outline" onclick="resetReceiver()">继续接收</button>
     </div>
 
@@ -154,21 +155,25 @@
     (function() {
         'use strict';
 
+        const B85_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~";
+        const B85_LOOKUP = new Map([...B85_ALPHABET].map((char, index) => [char, index]));
+
         let packets = {};
         let totalPackets = -1;
         let metadata = null;
         let receivedSet = new Set();
         let startTime = null;
         let html5QrCode = null;
+        let downloadUrl = null;
 
         function initCamera() {
             updateStatus('正在初始化扫码器...');
-            
+
             html5QrCode = new Html5Qrcode("reader");
-            
+
             html5QrCode.start(
                 { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
+                { fps: 15, qrbox: { width: 250, height: 250 } },
                 onScanSuccess,
                 onScanFailure
             ).then(() => {
@@ -179,58 +184,75 @@
             });
         }
 
-        function onScanSuccess(text, result) {
-            const regex = /^\[(\d+)\/(\d+)\]\|(.*)/;
-            const match = text.match(regex);
-
-            if (!match) return;
-
-            let currentIdx = parseInt(match[1]);
-            const total = parseInt(match[2]);
-            let payload = match[3];
-            const isMetadata = payload.startsWith('META:');
-
-            if (isMetadata) {
-                payload = payload.substring(5);
-            }
+        function onScanSuccess(text) {
+            const packet = parsePacket(text);
+            if (!packet) return;
 
             if (totalPackets === -1) {
-                totalPackets = total;
+                totalPackets = packet.total;
                 startTime = Date.now();
                 packets = {};
                 receivedSet.clear();
                 console.log('开始接收，共', totalPackets, '个数据包');
             }
 
-            if (isMetadata && metadata === null) {
-                try {
-                    const metadataJson = atob(payload);
-                    metadata = JSON.parse(metadataJson);
-                    receivedSet.add(0);
-                    console.log('收到元数据:', metadata);
-                    updateProgress();
-                } catch (e) {
-                    console.error('元数据解析失败:', e);
-                }
-                return;
-            }
+            if (packet.total !== totalPackets) return;
 
-            const packetIndex = currentIdx;
-            
-            if (!receivedSet.has(packetIndex)) {
-                packets[packetIndex] = payload;
-                receivedSet.add(packetIndex);
-                
+            if (packet.kind === 'meta' && metadata === null) {
+                metadata = packet.metadata;
+                receivedSet.add(0);
+                console.log('收到元数据:', metadata);
                 updateProgress();
-
-                if (receivedSet.size === totalPackets) {
-                    html5QrCode.stop().then(() => {
-                        document.getElementById('reader').style.display = 'none';
-                        updateStatus('集齐完毕，正在解压还原...');
-                        assembleAndDecode();
-                    }).catch(err => console.error('停止摄像头失败:', err));
-                }
+            } else if (packet.kind === 'data' && !receivedSet.has(packet.idx)) {
+                packets[packet.idx] = packet.payload;
+                receivedSet.add(packet.idx);
+                updateProgress();
             }
+
+            if (metadata && Object.keys(packets).length === totalPackets - 1) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('reader').style.display = 'none';
+                    updateStatus('集齐完毕，正在还原...');
+                    assembleAndDecode();
+                }).catch(err => console.error('停止摄像头失败:', err));
+            }
+        }
+
+        function parsePacket(text) {
+            const v2Match = text.match(/^QRT2\|(\d+)\/(\d+)\|(META|DATA)\|([\s\S]*)$/);
+            if (v2Match) {
+                const idx = parseInt(v2Match[1], 10);
+                const total = parseInt(v2Match[2], 10);
+                const kind = v2Match[3].toLowerCase();
+                const payload = v2Match[4];
+
+                if (kind === 'meta') {
+                    return { idx, total, kind, metadata: JSON.parse(payload) };
+                }
+                return { idx, total, kind, payload };
+            }
+
+            const legacyMatch = text.match(/^\[(\d+)\/(\d+)\]\|([\s\S]*)$/);
+            if (!legacyMatch) return null;
+
+            const idx = parseInt(legacyMatch[1], 10);
+            const total = parseInt(legacyMatch[2], 10);
+            let payload = legacyMatch[3];
+
+            if (idx === 0 && payload.startsWith('META:')) {
+                return {
+                    idx,
+                    total,
+                    kind: 'meta',
+                    metadata: JSON.parse(decodeBase64Utf8(payload.substring(5)))
+                };
+            }
+
+            if (idx > 0) {
+                return { idx, total, kind: 'data', payload };
+            }
+
+            return null;
         }
 
         function onScanFailure(error) {
@@ -239,21 +261,21 @@
 
         function updateProgress() {
             const received = receivedSet.size;
-            const percent = (received / totalPackets) * 100;
-            
+            const percent = totalPackets > 0 ? (received / totalPackets) * 100 : 0;
+
             document.getElementById('progress-fill').style.width = percent + '%';
             document.getElementById('progress-text').textContent = `${received} / ${totalPackets} 包`;
-            
+
             if (startTime && received > 0) {
                 const elapsed = (Date.now() - startTime) / 1000;
                 const speed = received / elapsed;
                 const remaining = totalPackets - received;
                 const eta = remaining / speed;
-                
+
                 document.getElementById('speed-text').textContent = `速度: ${speed.toFixed(1)} 包/秒`;
-                document.getElementById('eta-text').textContent = `剩余: ${eta.toFixed(0)} 秒`;
+                document.getElementById('eta-text').textContent = `剩余: ${Math.max(0, eta).toFixed(0)} 秒`;
             }
-            
+
             updateStatus(`接收中: ${received} / ${totalPackets} 包`);
         }
 
@@ -270,44 +292,16 @@
         function assembleAndDecode() {
             try {
                 updateStatus('正在组装数据...');
-                
-                let fullB64 = '';
-                for (let i = 1; i <= totalPackets; i++) {
-                    if (packets[i]) {
-                        fullB64 += packets[i];
-                    }
-                }
+                const restored = rebuildPayload();
+                const filename = outputFilename();
 
-                updateStatus('正在Base64解码...');
-                const binaryString = atob(fullB64);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                }
-
-                updateStatus('正在zlib解压...');
-                const decompressed = pako.inflate(bytes);
-
-                updateStatus('正在解码文本...');
-                let finalText;
-                
-                if (metadata && metadata.binary) {
-                    finalText = '[二进制数据，长度: ' + decompressed.length + ' 字节]';
-                } else {
-                    try {
-                        finalText = new TextDecoder('utf-8').decode(decompressed);
-                    } catch (e) {
-                        finalText = new TextDecoder('gbk', { errors: 'replace' }).decode(decompressed);
-                    }
-                }
-
+                setDownload(restored, filename);
+                showResultText(restored);
                 document.getElementById('result-container').style.display = 'block';
-                document.getElementById('final-text').value = finalText;
                 updateStatus('还原成功！');
-                
+
                 const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
                 console.log('传输完成!', '总时间:', totalTime, '秒');
-
             } catch (err) {
                 console.error('解码失败:', err);
                 showError('数据还原失败: ' + err.message);
@@ -315,11 +309,138 @@
             }
         }
 
+        function rebuildPayload() {
+            if (metadata && metadata.protocol === 'v2') {
+                let encoded;
+                if (metadata.chunk_encoding === 'base85') {
+                    const chunks = [];
+                    for (let i = 1; i < totalPackets; i++) {
+                        chunks.push(base85Decode(packets[i]));
+                    }
+                    encoded = concatUint8Arrays(chunks);
+                } else {
+                    const encoder = new TextEncoder();
+                    const chunks = [];
+                    for (let i = 1; i < totalPackets; i++) {
+                        chunks.push(encoder.encode(packets[i]));
+                    }
+                    encoded = concatUint8Arrays(chunks);
+                }
+
+                const raw = metadata.compression === 'zlib' ? pako.inflate(encoded) : encoded;
+                verifySize(raw);
+                return raw;
+            }
+
+            let fullB64 = '';
+            for (let i = 1; i < totalPackets; i++) {
+                fullB64 += packets[i];
+            }
+
+            const compressed = base64ToBytes(fullB64);
+            const raw = pako.inflate(compressed);
+            verifySize(raw);
+            return raw;
+        }
+
+        function verifySize(bytes) {
+            if (metadata && typeof metadata.size === 'number' && bytes.length !== metadata.size) {
+                throw new Error(`大小校验失败：期望 ${metadata.size} 字节，实际 ${bytes.length} 字节`);
+            }
+        }
+
+        function base85Decode(input) {
+            const output = [];
+            for (let i = 0; i < input.length; i += 5) {
+                let block = input.slice(i, i + 5);
+                const blockLength = block.length;
+                if (blockLength < 2) {
+                    throw new Error('Base85 数据长度异常');
+                }
+                while (block.length < 5) block += '~';
+
+                let value = 0;
+                for (const char of block) {
+                    const digit = B85_LOOKUP.get(char);
+                    if (digit === undefined) {
+                        throw new Error('Base85 字符异常: ' + char);
+                    }
+                    value = value * 85 + digit;
+                }
+
+                const bytes = [
+                    (value >>> 24) & 255,
+                    (value >>> 16) & 255,
+                    (value >>> 8) & 255,
+                    value & 255
+                ];
+                output.push(...bytes.slice(0, blockLength === 5 ? 4 : blockLength - 1));
+            }
+            return new Uint8Array(output);
+        }
+
+        function base64ToBytes(value) {
+            const binaryString = atob(value);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes;
+        }
+
+        function decodeBase64Utf8(value) {
+            return new TextDecoder('utf-8').decode(base64ToBytes(value));
+        }
+
+        function concatUint8Arrays(chunks) {
+            const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+            const result = new Uint8Array(totalLength);
+            let offset = 0;
+            for (const chunk of chunks) {
+                result.set(chunk, offset);
+                offset += chunk.length;
+            }
+            return result;
+        }
+
+        function outputFilename() {
+            if (metadata && metadata.name) {
+                return 'received_' + metadata.name.replace(/[\\/:*?"<>|]/g, '_');
+            }
+            const ext = metadata && metadata.ext ? metadata.ext : '.bin';
+            return 'received_file' + ext;
+        }
+
+        function setDownload(bytes, filename) {
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            const blob = new Blob([bytes], { type: 'application/octet-stream' });
+            downloadUrl = URL.createObjectURL(blob);
+
+            const link = document.getElementById('download-link');
+            link.href = downloadUrl;
+            link.download = filename;
+            link.style.display = 'block';
+        }
+
+        function showResultText(bytes) {
+            const textarea = document.getElementById('final-text');
+            const copyButton = document.getElementById('copy-button');
+
+            if (metadata && metadata.binary) {
+                textarea.value = `[二进制数据，长度: ${bytes.length} 字节]\n文件名: ${outputFilename()}`;
+                copyButton.style.display = 'none';
+                return;
+            }
+
+            textarea.value = new TextDecoder('utf-8').decode(bytes);
+            copyButton.style.display = 'block';
+        }
+
         window.copyText = function() {
             const textarea = document.getElementById('final-text');
             textarea.select();
             textarea.setSelectionRange(0, 99999);
-            
+
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(textarea.value).then(() => {
                     alert('已复制到剪贴板！');
@@ -339,7 +460,12 @@
             metadata = null;
             receivedSet.clear();
             startTime = null;
-            
+
+            if (downloadUrl) {
+                URL.revokeObjectURL(downloadUrl);
+                downloadUrl = null;
+            }
+
             document.getElementById('result-container').style.display = 'none';
             document.getElementById('reader').style.display = 'block';
             document.getElementById('progress-fill').style.width = '0%';
@@ -347,7 +473,10 @@
             document.getElementById('speed-text').textContent = '速度: --';
             document.getElementById('eta-text').textContent = '剩余: --';
             document.getElementById('error-box').style.display = 'none';
-            
+            document.getElementById('download-link').style.display = 'none';
+            document.getElementById('copy-button').style.display = 'block';
+            document.getElementById('final-text').value = '';
+
             updateStatus('等待扫码...');
             initCamera();
         };
