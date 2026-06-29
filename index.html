@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>光闸数据接收端</title>
+    <title>光闸数据接收端new</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -27,11 +27,14 @@
             font-weight: 600;
         }
         #reader {
-            width: 100%;
-            max-width: 500px;
+            width: 96vw;
+            max-width: 720px;
             margin: 0 auto;
         }
-        #reader video { border-radius: 12px; }
+        #reader video {
+            border-radius: 12px;
+            object-fit: cover;
+        }
         .status-box {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
@@ -169,19 +172,58 @@
         function initCamera() {
             updateStatus('正在初始化扫码器...');
 
-            html5QrCode = new Html5Qrcode("reader");
-
-            html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 15, qrbox: { width: 250, height: 250 } },
-                onScanSuccess,
-                onScanFailure
-            ).then(() => {
+            html5QrCode = new Html5Qrcode("reader", scannerOptions());
+            startScanner(cameraConstraints()).then(() => {
                 updateStatus('等待扫码...');
             }).catch(err => {
-                updateStatus('摄像头访问失败: ' + err);
-                showError('请确保已授予摄像头权限，并在HTTPS环境下运行');
+                console.warn('高分辨率摄像头启动失败，尝试普通模式:', err);
+                startScanner({ facingMode: "environment" }).then(() => {
+                    updateStatus('等待扫码...');
+                }).catch(fallbackErr => {
+                    updateStatus('摄像头访问失败: ' + fallbackErr);
+                    showError('请确保已授予摄像头权限，并在HTTPS环境下运行');
+                });
             });
+        }
+
+        function scannerOptions() {
+            const options = {
+                verbose: false,
+                experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+            };
+            if (window.Html5QrcodeSupportedFormats) {
+                options.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE];
+            }
+            return options;
+        }
+
+        function cameraConstraints() {
+            return {
+                facingMode: { ideal: "environment" },
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            };
+        }
+
+        function startScanner(cameraConfig) {
+            return html5QrCode.start(
+                cameraConfig,
+                {
+                    fps: 12,
+                    qrbox: dynamicQrbox,
+                    aspectRatio: 1.7777778,
+                    disableFlip: true,
+                    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+                },
+                onScanSuccess,
+                onScanFailure
+            );
+        }
+
+        function dynamicQrbox(viewfinderWidth, viewfinderHeight) {
+            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+            const size = Math.max(280, Math.floor(minEdge * 0.92));
+            return { width: size, height: size };
         }
 
         function onScanSuccess(text) {
